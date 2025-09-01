@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Intranet - Agencia de Autos</title>
+  <meta name="color-scheme" content="light dark">
+  <style>
+    :root{
+      --bg: #0f1320;
+      --panel: #151a2b;
+      --panel-2: #1b2238;
+      --text: #e8ecf3;
+      --muted: #a8b0c2;
+      --brand: #4cc9f0;
+      --brand-2: #4895ef;
+      --accent: #b5179e;
+      --ok: #2dd4bf;
+      --warn: #fbbf24;
+      --danger: #f43f5e;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --ring: 0 0 0 3px rgba(76,201,240,.25);
+      --card-border: 1px solid rgba(255,255,255,.08);
+    }
+    [data-theme="light"]{
+      --bg: #f7f8fc;
+      --panel: #ffffff;
+      --panel-2: #f1f4fb;
+      --text: #0e1726;
+      --muted: #4b5563;
+      --brand: #2563eb;
+      --brand-2: #1d4ed8;
+      --accent: #9333ea;
+      --ok: #059669;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --shadow: 0 6px 20px rgba(2,6,23,.08);
+      --ring: 0 0 0 3px rgba(37,99,235,.18);
+      --card-border: 1px solid rgba(2,6,23,.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    header{
+      display:flex; align-items:center; gap:16px; justify-content:space-between;
+      padding:18px 22px; background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      position: sticky; top:0; z-index: 50; border-bottom: var(--card-border);
+      backdrop-filter: blur(8px);
+    }
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{
+      width:36px; height:36px; display:grid; place-items:center;
+      border-radius:10px; background: radial-gradient(120% 120% at 30% 20%, var(--brand), var(--accent));
+      box-shadow: var(--shadow);
+    }
+    .brand h1{font-size:18px; margin:0; letter-spacing:.2px; font-weight:700}
+    .sub{font-size:12px; color: var(--muted); font-weight:500}
+
+    .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .search{
+      display:flex; align-items:center; gap:10px; background: var(--panel-2);
+      border: var(--card-border); padding:10px 12px; border-radius:12px; width:min(520px, 70vw);
+    }
+    .search input{
+      flex:1; border:0; outline:0; background: transparent; color: var(--text); font-size:14px;
+    }
+    .kbd{font-size:11px; color: var(--muted); border: var(--card-border); padding:2px 6px; border-radius:6px}
+    .btn{
+      appearance:none; border: var(--card-border); background: var(--panel-2); color: var(--text);
+      padding:10px 12px; border-radius:12px; display:inline-flex; align-items:center; gap:8px;
+      font-weight:600; cursor:pointer;
+    }
+    .btn:hover{box-shadow: var(--ring)}
+    .btn.primary{background: linear-gradient(180deg, var(--brand), var(--brand-2)); border:0; color:white}
+    .btn.ghost{background: transparent}
+    .btn.warn{background: linear-gradient(180deg, var(--warn), #b45309); border:0; color:#111827}
+    .btn-icon{padding:9px; width:40px; justify-content:center}
+
+    nav.tabs{
+      display:flex; gap:8px; padding:14px 22px; background: transparent; overflow:auto;
+    }
+    .tab{
+      border: var(--card-border); background: var(--panel); color: var(--text);
+      padding:10px 14px; border-radius:999px; font-weight:700; cursor:pointer;
+      display:inline-flex; align-items:center; gap:10px;
+    }
+    .tab[data-active="true"]{background: linear-gradient(180deg, var(--brand), var(--brand-2)); color:white; border:0}
+    .chip{font-size:12px; padding:2px 8px; border-radius:999px; background: rgba(255,255,255,.08); border: var(--card-border)}
+    main{padding:10px 22px 80px}
+
+    .toolbar{
+      display:flex; justify-content:space-between; align-items:center; gap:10px; margin:10px 0 6px 0;
+    }
+    .toolbar .hint{color: var(--muted); font-size:13px}
+
+    .grid{
+      display:grid; gap:14px;
+      grid-template-columns: repeat(12, 1fr);
+    }
+    @media (max-width: 1280px){ .grid{grid-template-columns: repeat(8,1fr)} }
+    @media (max-width: 900px){ .grid{grid-template-columns: repeat(6,1fr)} }
+    @media (max-width: 640px){ .grid{grid-template-columns: repeat(2,1fr)} }
+
+    .card{
+      grid-column: span 3;
+      background: var(--panel);
+      border: var(--card-border);
+      border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:10px;
+      box-shadow: var(--shadow);
+    }
+    @media (max-width: 900px){ .card{grid-column: span 3} }
+    @media (max-width: 640px){ .card{grid-column: span 2} }
+
+    .card-head{display:flex; align-items:center; justify-content:space-between}
+    .badge{
+      display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:10px;
+      background: var(--panel-2); border: var(--card-border); font-weight:700; font-size:12px;
+    }
+    .title{font-weight:800; letter-spacing:.2px; font-size:16px; margin:2px 0}
+    .desc{color: var(--muted); font-size:13px; margin:0}
+    .tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:4px}
+    .tag{font-size:11px; color: var(--muted); padding:2px 8px; border-radius:999px; background: transparent; border: var(--card-border)}
+    .card-actions{display:flex; gap:8px; flex-wrap:wrap; margin-top:6px}
+
+    .star{color: #fbbf24}
+    .danger{color: var(--danger)}
+    .ok{color: var(--ok)}
+
+    .empty{
+      display:grid; place-items:center; padding:40px; border: var(--card-border); border-radius:14px; background: var(--panel);
+      color: var(--muted)
+    }
+
+    dialog{
+      border:0; border-radius:16px; padding:0; background: var(--panel); color: var(--text); width:min(560px, 92vw);
+      box-shadow: var(--shadow);
+    }
+    .modal-head{display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom: var(--card-border); background: var(--panel-2)}
+    .modal-body{padding:16px 18px; display:grid; gap:12px}
+    .field{display:grid; gap:6px}
+    .field label{font-weight:700; font-size:13px}
+    .field input, .field textarea, .field select{
+      border: var(--card-border); background: var(--panel-2); color: var(--text);
+      border-radius:12px; padding:10px 12px; outline: none;
+    }
+    .modal-actions{display:flex; justify-content:flex-end; gap:10px; padding:12px 18px 18px}
+    .helper{color: var(--muted); font-size:12px}
+
+    footer{
+      position: fixed; bottom:10px; right:10px;
+      background: var(--panel); border: var(--card-border); border-radius:12px; padding:8px 10px;
+      display:flex; align-items:center; gap:8px; color: var(--muted)
+    }
+
+    /* Utility */
+    .sr-only{position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0}
+    a.link{color: inherit; text-decoration: none}
+    a.link:hover{text-decoration: underline}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <!-- Simple car icon -->
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M5 11l1.5-4.5A3 3 0 0 1 9.4 4h5.2a3 3 0 0 1 2.9 2.5L19 11h1a2 2 0 0 1 2 2v3a1 1 0 0 1-1 1h-1v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1H8v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1H3a1 1 0 0 1-1-1v-3a2 2 0 0 1 2-2h1zm2.2-2h9.6l-.8-2.4A1.5 1.5 0 0 0 14.6 5H9.4a1.5 1.5 0 0 0-1.4 1.6L7.2 9zM7 15a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
+        </svg>
+      </div>
+      <div>
+        <h1>Intranet Indiana Peugeot</h1>
+        <div class="sub">Accesos rápidos a planillas y recursos</div>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="search" role="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input id="q" placeholder="Buscar en la sección actual (nombre, descripción o tags)..." autocomplete="off" />
+        <span class="kbd">/</span>
+      </div>
+      <button id="themeBtn" class="btn btn-icon" title="Alternar tema (D)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21.64 13a9 9 0 1 1-10.63-10A9 9 0 0 0 21.64 13z"/></svg></button>
+      <button id="addBtn" class="btn primary" title="Agregar acceso (N)"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 11h8v2h-8v8h-2v-8H3v-2h8V3h2z"/></svg>Agregar acceso</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Áreas">
+    <button class="tab" data-tab="ventas" role="tab" aria-selected="true" data-active="true">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h4v8H3zM9 3h4v18H9zM15 8h4v13h-4z"/></svg>
+      <span>Ventas</span><span class="chip" id="count-ventas">0</span>
+    </button>
+    <button class="tab" data-tab="administracion" role="tab" aria-selected="false" data-active="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v4H3zM3 10h18v10H3z"/></svg>
+      <span>Administración</span><span class="chip" id="count-administracion">0</span>
+    </button>
+    <button class="tab" data-tab="calidad" role="tab" aria-selected="false" data-active="false">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 5 6 .9-4.3 4.2 1 6-5.7-3-5.7 3 1-6L3 7.9 9 7z"/></svg>
+      <span>Calidad</span><span class="chip" id="count-calidad">0</span>
+    </button>
+  </nav>
+
+  <main>
+    <div class="toolbar">
+      <div class="hint" id="hint">Mostrando favoritos primero. Usa el botón “Agregar acceso” para sumar enlaces personalizados.</div>
+      <div>
+        <button id="resetFilters" class="btn ghost"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 6V3L8 7l4 4V8c2.757 0 5 2.243 5 5a5.002 5.002 0 0 1-9.9 1h-2.02A7.002 7.002 0 0 0 12 20a7 7 0 0 0 0-14z"/></svg> Restablecer</button>
+      </div>
+    </div>
+
+    <section id="list" class="grid" aria-live="polite" aria-busy="false"></section>
+    <div id="empty" class="empty" hidden>
+      <div>
+        <p><strong>No hay resultados.</strong></p>
+        <p class="helper">Prueba limpiar la búsqueda o agrega un acceso nuevo.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Agregar/Editar -->
+  <dialog id="modal">
+    <form method="dialog" id="form">
+      <div class="modal-head">
+        <div style="display:flex; align-items:center; gap:8px">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 11h8v2h-8v8h-2v-8H3v-2h8V3h2z"/></svg>
+          <strong id="modalTitle">Agregar acceso</strong>
+        </div>
+        <button class="btn btn-icon" id="closeModal" type="reset" title="Cerrar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label for="f-area">Área</label>
+          <select id="f-area" required>
+            <option value="ventas">Ventas</option>
+            <option value="administracion">Administración</option>
+            <option value="calidad">Calidad</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-name">Nombre del acceso</label>
+          <input id="f-name" placeholder="Ej: Tablero ventas mensual" required maxlength="80" />
+        </div>
+        <div class="field">
+          <label for="f-url">URL (Google Sheets u otro)</label>
+          <input id="f-url" placeholder="https://docs.google.com/spreadsheets/..." required inputmode="url" />
+          <span class="helper">Se abrirá en una nueva pestaña. Se recomienda usar enlaces con permisos adecuados.</span>
+        </div>
+        <div class="field">
+          <label for="f-desc">Descripción</label>
+          <textarea id="f-desc" rows="2" placeholder="Breve contexto o cómo usar la planilla (opcional)"></textarea>
+        </div>
+        <div class="field">
+          <label for="f-tags">Tags</label>
+          <input id="f-tags" placeholder="Ej: mensual, KPI, reporte" />
+          <span class="helper">Separá tags por coma para mejorar la búsqueda.</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn" type="reset">Cancelar</button>
+        <button class="btn primary" id="saveAccess" type="submit">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <footer>
+    <span class="helper">Atajos: <strong>/</strong> buscar • <strong>N</strong> nuevo • <strong>D</strong> tema</span>
+  </footer>
+
+  <script>
+    // ========= CONFIGURACIÓN INICIAL =========
+    // Editá estos accesos por defecto con las URLs reales de tus planillas.
+    const DEFAULT_LINKS = {
+      ventas: [
+        {
+          id: "v-1",
+          name: "Venta directa Stock, Precios",
+          url: "https://docs.google.com/spreadsheets/d/1uBrrPEJoIuo17SdppqJzDXyD9a2rSaJ_D2thrOjjyv0/edit?gid=796864399#gid=796864399",
+          desc: "Resumen de objetivos, cierre y proyección por modelo y canal.",
+          tags: ["kpi","reporte","mensual"],
+          favorite: true,
+          source: "default"
+        },
+        {
+          id: "v-2",
+          name: "Tecnom CRM",
+          url: "https://peugeotindiana.tecnomcrm.com/Login?ReturnUrl=%2Fcomercial#/vendedor",
+          desc: "Pipeline B2B/B2C con estados, responsables y próximos pasos.",
+          tags: ["pipeline","seguimiento","leads"],
+          favorite: false,
+          source: "default"
+        },
+        {
+          id: "v-3",
+          name: "Financiación PSA",
+          url: "https://drive.google.com/drive/u/0/folders/13J8eyJ9piFOwAkj_J825Anp4Qjcd8mk0",
+          desc: "Precios vigentes, planes, tasas y cuotas por modelo.",
+          tags: ["precios","financiacion","productos"],
+          favorite: false,
+          source: "default"
+        }
+      ],
+      administracion: [
+        {
+          id: "a-1",
+          name: "Cash flow semanal",
+          url: "https://docs.google.com/spreadsheets/d/REEMPLAZAR_ID_CASHFLOW/edit?usp=sharing",
+          desc: "Ingresos/egresos, previsión y desvíos.",
+          tags: ["tesoreria","finanzas","semanal"],
+          favorite: true,
+          source: "default"
+        },
+        {
+          id: "a-2",
+          name: "Cuentas a pagar y proveedores",
+          url: "https://docs.google.com/spreadsheets/d/REEMPLAZAR_ID_CAP/edit?usp=sharing",
+          desc: "Vencimientos, condiciones y aprobaciones.",
+          tags: ["ap","proveedores","pagos"],
+          favorite: false,
+          source: "default"
+        },
+        {
+          id: "a-3",
+          name: "Inventario de unidades",
+          url: "https://docs.google.com/spreadsheets/d/REEMPLAZAR_ID_STOCK/edit?usp=sharing",
+          desc: "Stock por modelo, color y sucursal.",
+          tags: ["stock","logistica","unidades"],
+          favorite: false,
+          source: "default"
+        }
+      ],
+      calidad: [
+        {
+          id: "c-1",
+          name: "NPS y encuestas de satisfacción",
+          url: "https://docs.google.com/spreadsheets/d/REEMPLAZAR_ID_NPS/edit?usp=sharing",
+          desc: "Detalle de encuestas, NPS y comentarios por etapa.",
+          tags: ["nps","cx","satisfaccion"],
+          favorite: true,
+          source: "default"
+        },
+        {
+          id: "c-2",
+          name: "Auditorías de procesos",
+          url: "https://docs.google.com/spreadsheets/d/REEMPLAZAR_ID_AUDITORIA/edit?usp=sharing",
+          desc: "Checklist de ventas y postventa, hallazgos y acciones.",
+          tags: ["auditoria","procesos","mejora"],
+          favorite: false,
+          source: "default"
+        },
+        {
+          id: "c-3",
+          name: "Registro de reclamos",
+          url: "https://docs.google.com/spreadsheets/d/REEMPLAZAR_ID_RECLAMOS/edit?usp=sharing",
+          desc: "Incidentes, responsables, SLA y estado.",
+          tags: ["reclamos","sla","soporte"],
+          favorite: false,
+          source: "default"
+        }
+      ]
+    };
+
+    const STORAGE_KEY = "intranet.links.v1";
+    const THEME_KEY = "intranet.theme";
+
+    // ========= ESTADO =========
+    const state = {
+      area: "ventas",
+      query: "",
+      links: loadLinks(), // {area: Link[]}
+    };
+
+    // ========= UTILIDADES =========
+    function $(sel, root=document){ return root.querySelector(sel); }
+    function $all(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
+    function uid(){ return Math.random().toString(36).slice(2, 10); }
+    function normalize(str){ return (str || "").toString().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu,""); }
+    function isValidUrl(url){
+      try{
+        const u = new URL(url);
+        return ["http:","https:"].includes(u.protocol);
+      }catch{ return false; }
+    }
+    function saveLinks(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.links));
+      updateCounts();
+    }
+    function loadLinks(){
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if(saved){
+        try { return JSON.parse(saved); } catch {}
+      }
+      return structuredClone(DEFAULT_LINKS);
+    }
+    function getActiveLinks(){
+      const arr = state.links[state.area] || [];
+      // filtrar por query
+      const q = normalize(state.query);
+      const filtered = !q ? arr : arr.filter(l=>{
+        const hay = [l.name, l.desc, ...(l.tags||[])].map(normalize).join(" ");
+        return hay.includes(q);
+      });
+      // ordenar: favoritos primero, luego alfabético
+      return filtered.sort((a,b)=>{
+        if(!!b.favorite - !!a.favorite !== 0) return (!!b.favorite - !!a.favorite);
+        return a.name.localeCompare(b.name, "es");
+      });
+    }
+
+    // ========= RENDER =========
+    const listEl = $("#list");
+    const emptyEl = $("#empty");
+
+    function updateCounts(){
+      ["ventas","administracion","calidad"].forEach(a=>{
+        const c = state.links[a]?.length || 0;
+        const el = document.getElementById("count-"+a);
+        if(el) el.textContent = c;
+      });
+    }
+
+    function iconFor(area){
+      // Minimal icons per area
+      if(area==="ventas") return '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h4v8H3zM9 3h4v18H9zM15 8h4v13h-4z"/></svg>';
+      if(area==="administracion") return '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v4H3zM3 10h18v10H3z"/></svg>';
+      return '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 5 6 .9-4.3 4.2 1 6-5.7-3-5.7 3 1-6L3 7.9 9 7z"/></svg>';
+    }
+
+    function spreadsheetBadge(){
+      // Generic spreadsheet pill
+      return '<span class="badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM7 11h10v2H7v-2zm0 4h10v2H7v-2zM7 7h5v2H7V7z"/></svg> Planilla</span>';
+    }
+
+    function card(link){
+      const tags = (link.tags||[]).map(t=>`<span class="tag">#${t}</span>`).join("");
+      const rmBtn = link.source === "user"
+        ? `<button class="btn btn-icon" title="Eliminar" data-act="remove" data-id="${link.id}">
+             <svg width="16" height="16" viewBox="0 0 24 24" class="danger" fill="currentColor"><path d="M9 3h6l1 2h5v2H2V5h5l1-2zm1 7h2v8h-2v-8zm4 0h2v8h-2v-8z"/></svg>
+           </button>`
+        : "";
+      return `
+        <article class="card" data-id="${link.id}">
+          <div class="card-head">
+            <div class="badge">${iconFor(link.area || state.area)}<span>${(link.area || state.area).charAt(0).toUpperCase()+ (link.area||state.area).slice(1)}</span></div>
+            <div style="display:flex; gap:6px">
+              <button class="btn btn-icon" title="${link.favorite ? "Quitar de favoritos":"Agregar a favoritos"}" data-act="fav" data-id="${link.id}">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="${link.favorite ? 'currentColor':'none'}" stroke="currentColor" class="star"><path d="M12 17.3l-6.18 3.7 1.64-7.03L2 9.24l7.19-.61L12 2l2.81 6.63 7.19.61-5.46 4.73 1.64 7.03z"/></svg>
+              </button>
+              ${rmBtn}
+            </div>
+          </div>
+          <h3 class="title">${escapeHtml(link.name)}</h3>
+          <p class="desc">${escapeHtml(link.desc || "")}</p>
+          <div class="tags">${tags}</div>
+          <div class="card-actions">
+            <a class="btn" href="${encodeURI(link.url)}" target="_blank" rel="noopener noreferrer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42 9.3-9.29H14V3z"/><path d="M5 5h6v2H7v10h10v-4h2v6H5z"/></svg>
+              Abrir
+            </a>
+            <button class="btn" data-act="copy" data-id="${link.id}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1z"/><path d="M20 5H8a2 2 0 0 0-2 2v16h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm0 16H8V7h12v14z"/></svg>
+              Copiar enlace
+            </button>
+            ${spreadsheetBadge()}
+          </div>
+        </article>
+      `;
+    }
+
+    function escapeHtml(str=""){
+      return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    }
+
+    function render(){
+      listEl.setAttribute("aria-busy","true");
+      const data = getActiveLinks();
+      listEl.innerHTML = data.map(card).join("");
+      emptyEl.hidden = data.length > 0;
+      listEl.setAttribute("aria-busy","false");
+      // counters
+      updateCounts();
+    }
+
+    // ========= INTERACCIÓN =========
+    // Tabs
+    $all(".tab").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const area = b.dataset.tab;
+        setArea(area);
+      });
+    });
+
+    function setArea(area){
+      state.area = area;
+      // tabs UI
+      $all(".tab").forEach(t=>{
+        const active = t.dataset.tab === area;
+        t.dataset.active = active ? "true":"false";
+        t.setAttribute("aria-selected", active ? "true":"false");
+      });
+      // select area in modal by default
+      $("#f-area").value = area;
+      // hash
+      if(location.hash !== "#"+area){
+        history.replaceState(null,"","#"+area);
+      }
+      // hint dynamic
+      $("#hint").textContent = `Sección: ${area.charAt(0).toUpperCase()+area.slice(1)} — Favoritos primero. Usá “Agregar acceso” para sumar enlaces personalizados.`;
+      render();
+    }
+
+    // Hash routing
+    window.addEventListener("hashchange", ()=>{
+      const h = location.hash.replace("#","");
+      if(["ventas","administracion","calidad"].includes(h)){
+        setArea(h);
+      }
+    });
+
+    // Search
+    const q = $("#q");
+    q.addEventListener("input", ()=>{
+      state.query = q.value.trim();
+      render();
+    });
+
+    // Reset filters
+    $("#resetFilters").addEventListener("click", ()=>{
+      state.query = "";
+      q.value = "";
+      render();
+    });
+
+    // Delegated actions
+    listEl.addEventListener("click", async (e)=>{
+      const btn = e.target.closest("button");
+      if(!btn) return;
+      const id = btn.dataset.id;
+      const act = btn.dataset.act;
+      const area = state.area;
+      const idx = (state.links[area]||[]).findIndex(l=>l.id===id);
+      if(idx<0) return;
+      const link = state.links[area][idx];
+
+      if(act==="fav"){
+        link.favorite = !link.favorite;
+        saveLinks();
+        render();
+      }
+      if(act==="copy"){
+        try{
+          await navigator.clipboard.writeText(link.url);
+          toast("Enlace copiado");
+        }catch{
+          toast("No se pudo copiar", true);
+        }
+      }
+      if(act==="remove"){
+        if(link.source !== "user") return;
+        const ok = confirm(`¿Eliminar “${link.name}”?`);
+        if(ok){
+          state.links[area].splice(idx,1);
+          saveLinks();
+          render();
+        }
+      }
+    });
+
+    // ========= MODAL =========
+    const modal = $("#modal");
+    const form = $("#form");
+    const addBtn = $("#addBtn");
+    const closeModal = $("#closeModal");
+
+    addBtn.addEventListener("click", ()=> openModal());
+    closeModal.addEventListener("click", ()=> modal.close());
+    form.addEventListener("reset", ()=> modal.close());
+
+    function openModal(){
+      $("#modalTitle").textContent = "Agregar acceso";
+      $("#f-area").value = state.area;
+      $("#f-name").value = "";
+      $("#f-url").value = "";
+      $("#f-desc").value = "";
+      $("#f-tags").value = "";
+      modal.showModal();
+      setTimeout(()=>$("#f-name").focus(), 50);
+    }
+
+    form.addEventListener("submit", (e)=>{
+      e.preventDefault();
+      const area = $("#f-area").value;
+      const name = $("#f-name").value.trim();
+      const url = $("#f-url").value.trim();
+      const desc = $("#f-desc").value.trim();
+      const tags = $("#f-tags").value.split(",").map(t=>t.trim()).filter(Boolean);
+
+      if(!name || !url){ toast("Completá nombre y URL", true); return; }
+      if(!isValidUrl(url)){ toast("URL inválida", true); return; }
+
+      const newLink = {
+        id: area[0] + "-" + uid(),
+        name, url, desc, tags,
+        favorite: false,
+        source: "user",
+        area
+      };
+      state.links[area] = state.links[area] || [];
+      state.links[area].push(newLink);
+      saveLinks();
+      modal.close();
+      setArea(area);
+      toast("Acceso agregado");
+    });
+
+    // ========= TEMA =========
+    const themeBtn = $("#themeBtn");
+    function loadTheme(){
+      const saved = localStorage.getItem(THEME_KEY);
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const theme = saved || (prefersDark ? "dark":"light");
+      setTheme(theme);
+    }
+    function setTheme(mode){
+      document.documentElement.setAttribute("data-theme", mode);
+      localStorage.setItem(THEME_KEY, mode);
+      themeBtn.title = `Alternar tema (D) — Actual: ${mode}`;
+      themeBtn.setAttribute("aria-label", `Tema ${mode}`);
+    }
+    themeBtn.addEventListener("click", ()=> setTheme(currentTheme()==="dark" ? "light":"dark"));
+    function currentTheme(){ return document.documentElement.getAttribute("data-theme") || "light"; }
+
+    // ========= TOAST =========
+    let toastTimer;
+    function toast(msg, isError=false){
+      const el = document.createElement("div");
+      el.textContent = msg;
+      el.style.position = "fixed";
+      el.style.left = "50%";
+      el.style.transform = "translateX(-50%)";
+      el.style.bottom = "24px";
+      el.style.padding = "10px 14px";
+      el.style.borderRadius = "10px";
+      el.style.background = isError ? "linear-gradient(180deg, var(--danger), #991b1b)" : "linear-gradient(180deg, var(--ok), #0f766e)";
+      el.style.color = "white";
+      el.style.fontWeight = "700";
+      el.style.boxShadow = "var(--shadow)";
+      el.style.zIndex = "9999";
+      document.body.appendChild(el);
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> el.remove(), 2000);
+    }
+
+    // ========= ATAJOS =========
+
+
+      // ========= INIT =========
+    (function init(){
+      loadTheme();
+      const initial = location.hash.replace("#","");
+      setArea(["ventas","administracion","calidad"].includes(initial) ? initial : "ventas");
+      render();
+    })();
+  </script>
+</body>
+</html>
